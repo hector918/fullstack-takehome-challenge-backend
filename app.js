@@ -11,16 +11,6 @@ app.use(cors({ credentials: true, origin: true }));
 app.use(express.json({ type: "application/json", limit: "1m" }));
 
 app.use((req, res, next) => {
-  //preset log function, it logs to file, in /logs folder, check _log_.js for more detail.
-  req[time_lapse_key_name] = new Date().getTime();
-  req.log = function () { log(req.route, ...arguments) };
-  req.log_error = function (error) {
-    if (error) {
-      const serializedError = JSON.stringify(error, Object.getOwnPropertyNames(error));
-      log_error(req, res, req.route, serializedError);
-    }
-  };
-  req.on("end", () => log_to_file(req, res));
   req.general_procedure = general_procedure;
   next();
 })
