@@ -8,7 +8,7 @@ app.set('trust proxy', false);
 //middle ware//////////////////////////////////
 app.use(cors({ credentials: true, origin: true }));
 // app.use(express.static("./public"));
-app.use(express.json({ type: "application/json", limit: "1m" }));
+app.use(express.json({ type: "application/json", limit: "1kb" }));
 
 app.use((req, res, next) => {
   req.general_procedure = general_procedure;
