@@ -29,9 +29,8 @@ async function general_procedure(req, res, fn, error_callback) {
     await fn();
   } catch (error) {
     console.error(error);
-    const message = error_code.message(error.message);
-    const code = message !== error.message ? error.message : 500;
-    res.status(Number(code)).json({ error: message });
+
+    res.status(500).json({ error: error.message });
     if (error_callback) error_callback();
   }
 }

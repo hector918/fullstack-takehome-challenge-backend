@@ -14,4 +14,14 @@ const validate_raffle = (req, res, next) => {
   next();
 }
 
-module.exports = { validate_raffle };
+const validate_id = (req, res, next) => {
+  let { id } = req.params;
+  if (!Number.isInteger(Number(id)) || id < 0) {
+    res.status(400).json({ error: "id not vaild." });
+    return;
+  }
+  req.vaildBody = { id: Number(id) };
+  next();
+}
+
+module.exports = { validate_raffle, validate_id };
