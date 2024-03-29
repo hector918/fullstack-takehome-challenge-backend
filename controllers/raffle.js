@@ -1,5 +1,7 @@
 const express = require("express");
 const raffle = express.Router();
+const { test } = require('../queries/raffle');
+
 
 raffle.get('/', async (req, res) => {
   await req.general_procedure(req, res, async () => {
