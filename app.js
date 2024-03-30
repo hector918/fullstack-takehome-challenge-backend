@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
   res.status(200).json({ data: "server is running." });
 })
 app.get('*', (req, res) => {
-  res.status(404).json({ error: "file not found." });
+  res.status(404).json({ error: "page not found." });
 })
 ///helper///////////////////////////////////////////
 async function general_procedure(req, res, fn, error_callback) {

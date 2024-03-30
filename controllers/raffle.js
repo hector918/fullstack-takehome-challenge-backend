@@ -1,7 +1,7 @@
 const express = require("express");
 const raffle = express.Router();
-const { create_raffle, all_raffles, raffle_by_id } = require('../queries/raffle');
-const { validate_raffle, validate_id } = require('../validation_');
+const { create_raffle, all_raffles, raffle_by_id, add_participant_to_raffle } = require('../queries/raffle');
+const { validate_raffle, validate_id, validata_participant } = require('../validation_');
 
 raffle.get('/', async (req, res) => {
   await req.general_procedure(req, res, async () => {
@@ -12,7 +12,7 @@ raffle.get('/', async (req, res) => {
 })
 
 raffle.get('/:id', validate_id, async (req, res) => {
-  const { id } = req.vaildBody;
+  const { id } = req.vaildParams;
   await req.general_procedure(req, res, async () => {
     //list all raffles
     const raffle = await raffle_by_id(id);
@@ -41,5 +41,16 @@ raffle.post('/', validate_raffle, async (req, res) => {
   }
 })
 
+raffle.post('/:id/participants', validate_id, validata_participant, async (req, res) => {
+
+  const { id } = req.vaildParams;
+
+  await req.general_procedure(req, res, async () => {
+    //Sign up a participant for a raffle
+    const participant = await add_participant_to_raffle({ raffle_id: id, ...req.vaildBody });
+    if (!participant) throw new Error("participant id not found.");
+    res.json({ data: participant });
+  })
+})
 
 module.exports = raffle;
