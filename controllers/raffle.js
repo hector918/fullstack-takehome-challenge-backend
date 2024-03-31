@@ -28,10 +28,10 @@ raffle.get('/:id', validate_id, async (req, res) => {
 })
 
 raffle.post('/', validate_raffle, async (req, res) => {
-  const { name } = req.vaildBody;
+  const { name, secret_token } = req.vaildBody;
   await req.general_procedure(req, res, async () => {
     //create a raffles
-    const raffle = await create_raffle({ name, secret_token: create_secret_token() });
+    const raffle = await create_raffle({ name, secret_token });
     if (!raffle) throw new Error("create raffle error.");
     res.json({ data: raffle });
   })

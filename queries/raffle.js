@@ -60,6 +60,7 @@ const get_participants_by_raffle_id = async (raffle_id) => {
   return participants;
 }
 
+
 module.exports = {
   create_raffle,
   all_raffles,

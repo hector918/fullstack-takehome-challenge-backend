@@ -4,7 +4,7 @@ const email_regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const phone_regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
 /////////////////////////////////////////////////
 const validate_raffle = (req, res, next) => {
-  let { name } = req.body;
+  let { name, secret_token } = req.body;
 
   if (name.length < 3 || name.length > 999) {
     res.status(400).json({ error: "the length of name should between 3-999." });
@@ -15,7 +15,13 @@ const validate_raffle = (req, res, next) => {
     res.status(400).json({ error: "only support all unicode letter from different languages plus space." });
     return;
   }
-  req.vaildBody = { name };
+
+  if (!/^[A-Za-z0-9]{6}$/.test(secret_token)) {
+    res.status(400).json({ error: "A secret token must be comprised of only English letters and numbers, with a total length of 6 characters." });
+    return;
+  }
+
+  req.vaildBody = { name, secret_token };
   next();
 }
 
