@@ -46,10 +46,24 @@ const add_participant_to_raffle = async ({ raffle_id, firstname, lastname, email
 
     if (!check_link || !participant.id) throw new Error("insert participant into raffle failed.");
 
-    delete participant.id;
-    return participant
+    const participant_for_return = {};
+    for (let key of participant_for_showing) participant_for_return[key] = participant[key];
+    return participant_for_return;
   });
   return signed_participant;
 }
 
-module.exports = { create_raffle, all_raffles, raffle_by_id, add_participant_to_raffle }
+const get_participants_by_raffle_id = async (raffle_id) => {
+  const participants = await db.many(`SELECT ${participant_for_showing.join(",")} FROM participants_link_raffes 
+  JOIN participants ON participants.id = participants_link_raffes.participant_id
+  WHERE raffle_id = $[raffle_id]`, { raffle_id });
+  return participants;
+}
+
+module.exports = {
+  create_raffle,
+  all_raffles,
+  raffle_by_id,
+  add_participant_to_raffle,
+  get_participants_by_raffle_id
+}
