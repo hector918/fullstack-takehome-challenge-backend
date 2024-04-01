@@ -59,7 +59,7 @@ const add_participant_to_raffle = async ({ raffle_id, firstname, lastname, email
 const get_participants_by_raffle_id = async (raffle_id) => {
   const participants = await db.many(`SELECT ${participant_for_showing.join(",")} FROM participants_link_raffes 
   JOIN participants ON participants.id = participants_link_raffes.participant_id
-  WHERE raffle_id = $[raffle_id]`, { raffle_id });
+  WHERE raffle_id = $[raffle_id];`, { raffle_id });
   return participants;
 }
 
@@ -69,7 +69,7 @@ const pick_a_winner = async (raffle_id, secret_token, random_number = Math.rando
     const hash = bcrypt.hashSync(secret_token, salt);
     const raffle = await t.oneOrNone(`SELECT * FROM raffles WHERE id = $[raffle_id] AND secret_token = $[secret_token] AND status = 0;`, { raffle_id, secret_token: hash });
 
-    if (!raffle) throw new Error(`Can not find raffle or invaild token.`);
+    if (!raffle) throw new Error(`Ivaild raffle or invaild token.`);
 
     const participants = await t.manyOrNone(`SELECT participants_link_raffes.id, ${participant_for_showing.join(",")} FROM participants_link_raffes 
     JOIN participants ON participants.id = participants_link_raffes.participant_id
@@ -83,11 +83,13 @@ const pick_a_winner = async (raffle_id, secret_token, random_number = Math.rando
     WHERE id = $[winner_link_id]
     RETURNING *;`, { winner_link_id: winner_link.id });
 
-    if (!updated_winner) throw new Error(`Can not update raffle ${raffle_id} for winner.`);
+    if (!updated_winner) throw new Error(`Can not update winner.`);
 
-    await t.oneOrNone(`UPDATE raffles
+    const updated_raffle = await t.oneOrNone(`UPDATE raffles
     SET update_at = $[update_at], status = 1
     WHERE id = $[raffle_id];`, { update_at: (new Date).toUTCString(), raffle_id });
+
+    if (!updated_raffle) throw new Error(`Can not update raffle ${raffle_id} for winner.`);
 
     const winner = {};
     for (let itm of participant_for_showing) winner[itm] = winner_link[itm];
@@ -96,7 +98,12 @@ const pick_a_winner = async (raffle_id, secret_token, random_number = Math.rando
   return winner;
 }
 
-
+const get_raffle_winner_info = async (raffle_id) => {
+  const winner = db.oneOrNone(`SELECT ${participant_for_showing.join(",")} FROM participants_link_raffes 
+  JOIN participants ON participants.id = participants_link_raffes.participant_id
+  WHERE raffle_id = $[raffle_id] AND status = 1;`, { raffle_id });
+  return winner;
+}
 
 module.exports = {
   create_raffle,
@@ -104,5 +111,6 @@ module.exports = {
   raffle_by_id,
   add_participant_to_raffle,
   get_participants_by_raffle_id,
-  pick_a_winner
+  pick_a_winner,
+  get_raffle_winner_info
 }

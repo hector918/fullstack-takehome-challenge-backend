@@ -6,7 +6,8 @@ const {
   raffle_by_id,
   add_participant_to_raffle,
   get_participants_by_raffle_id,
-  pick_a_winner
+  pick_a_winner,
+  get_raffle_winner_info
 } = require('../queries/raffle');
 const {
   validate_raffle,
@@ -79,6 +80,16 @@ raffle.put('/:id/winner', validate_id, validate_token, async (req, res) => {
   await req.general_procedure(req, res, async () => {
     const ret = await pick_a_winner(id, secret_token);
     res.json({ data: ret });
+  })
+})
+
+raffle.get('/:id/winner', validate_id, async (req, res) => {
+  const { id } = req.vaildParams;
+
+  await req.general_procedure(req, res, async () => {
+    const winner = await get_raffle_winner_info(id);
+    if (!winner) throw new Error(`Can find winnder for raffle ${id}.`);
+    res.json({ data: winner });
   })
 })
 
