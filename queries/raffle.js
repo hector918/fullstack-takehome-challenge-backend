@@ -1,4 +1,6 @@
 const { db } = require("../db/db-config");
+const bcrypt = require("bcrypt");
+const salt = process.env.SALT;//bcrypt.genSaltSync(9);
 //////////////////////////////////////////
 const raffle_field_for_showing = ["id", "name", "create_at", "update_at", "status"];
 const participant_for_showing = ['firstname', 'lastname', 'email', 'phone'];
@@ -9,11 +11,12 @@ const all_raffles = async () => {
 }
 
 const create_raffle = async ({ name, secret_token }) => {
+
+  const hash = bcrypt.hashSync(secret_token, salt);
   const raffle = await db.oneOrNone(`INSERT INTO raffles 
   (name, secret_token) 
   VALUES($[name], $[secret_token])
-  RETURNING name, secret_token;`, { name, secret_token });
-
+  RETURNING ${raffle_field_for_showing.join(",")};`, { name, secret_token: hash });
   return raffle;
 }
 
@@ -60,11 +63,46 @@ const get_participants_by_raffle_id = async (raffle_id) => {
   return participants;
 }
 
+const pick_a_winner = async (raffle_id, secret_token, random_number = Math.random()) => {
+  const winner = db.tx(async t => {
+
+    const hash = bcrypt.hashSync(secret_token, salt);
+    const raffle = await t.oneOrNone(`SELECT * FROM raffles WHERE id = $[raffle_id] AND secret_token = $[secret_token] AND status = 0;`, { raffle_id, secret_token: hash });
+
+    if (!raffle) throw new Error(`Can not find raffle or invaild token.`);
+
+    const participants = await t.manyOrNone(`SELECT participants_link_raffes.id, ${participant_for_showing.join(",")} FROM participants_link_raffes 
+    JOIN participants ON participants.id = participants_link_raffes.participant_id
+    WHERE raffle_id = $[raffle_id]`, { raffle_id });
+
+    if (!participants || participants.length === 0) throw new Error(`No participants found in raffle ${raffle_id}.`);
+
+    const winner_link = { ...participants[Math.ceil(participants.length * random_number)] };
+    const updated_winner = await t.oneOrNone(`UPDATE participants_link_raffes
+    SET status = 1
+    WHERE id = $[winner_link_id]
+    RETURNING *;`, { winner_link_id: winner_link.id });
+
+    if (!updated_winner) throw new Error(`Can not update raffle ${raffle_id} for winner.`);
+
+    await t.oneOrNone(`UPDATE raffles
+    SET update_at = $[update_at], status = 1
+    WHERE id = $[raffle_id];`, { update_at: (new Date).toUTCString(), raffle_id });
+
+    const winner = {};
+    for (let itm of participant_for_showing) winner[itm] = winner_link[itm];
+    return winner;
+  })
+  return winner;
+}
+
+
 
 module.exports = {
   create_raffle,
   all_raffles,
   raffle_by_id,
   add_participant_to_raffle,
-  get_participants_by_raffle_id
+  get_participants_by_raffle_id,
+  pick_a_winner
 }

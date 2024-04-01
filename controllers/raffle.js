@@ -5,9 +5,15 @@ const {
   all_raffles,
   raffle_by_id,
   add_participant_to_raffle,
-  get_participants_by_raffle_id
+  get_participants_by_raffle_id,
+  pick_a_winner
 } = require('../queries/raffle');
-const { validate_raffle, validate_id, validata_participant } = require('../validation_');
+const {
+  validate_raffle,
+  validate_id,
+  validata_participant,
+  validate_token
+} = require('../validation_');
 
 raffle.get('/', async (req, res) => {
   await req.general_procedure(req, res, async () => {
@@ -29,6 +35,7 @@ raffle.get('/:id', validate_id, async (req, res) => {
 
 raffle.post('/', validate_raffle, async (req, res) => {
   const { name, secret_token } = req.vaildBody;
+
   await req.general_procedure(req, res, async () => {
     //create a raffles
     const raffle = await create_raffle({ name, secret_token });
@@ -62,6 +69,16 @@ raffle.get('/:id/participants', validate_id, async (req, res) => {
   await req.general_procedure(req, res, async () => {
     const participants = await get_participants_by_raffle_id(id);
     res.json({ data: participants });
+  })
+})
+
+
+raffle.put('/:id/winner', validate_id, validate_token, async (req, res) => {
+  const { id } = req.vaildParams;
+  const { secret_token } = req.vaildBody;
+  await req.general_procedure(req, res, async () => {
+    const ret = await pick_a_winner(id, secret_token);
+    res.json({ data: ret });
   })
 })
 

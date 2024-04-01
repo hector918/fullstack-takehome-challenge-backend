@@ -2,6 +2,7 @@
 const unicode_letter_regex = /^[\p{L}\p{N} ]+$/u;
 const email_regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const phone_regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+const secret_token_regex = /^[A-Za-z0-9]{6}$/;
 /////////////////////////////////////////////////
 const validate_raffle = (req, res, next) => {
   let { name, secret_token } = req.body;
@@ -16,7 +17,7 @@ const validate_raffle = (req, res, next) => {
     return;
   }
 
-  if (!/^[A-Za-z0-9]{6}$/.test(secret_token)) {
+  if (!secret_token_regex.test(secret_token)) {
     res.status(400).json({ error: "A secret token must be comprised of only English letters and numbers, with a total length of 6 characters." });
     return;
   }
@@ -32,6 +33,16 @@ const validate_id = (req, res, next) => {
     return;
   }
   req.vaildParams = { id: Number(id) };
+  next();
+}
+
+const validate_token = (req, res, next) => {
+  const { secret_token } = req.body;
+  if (!secret_token_regex.test(secret_token)) {
+    res.status(400).json({ error: "A secret token must be comprised of only English letters and numbers, with a total length of 6 characters." });
+    return;
+  }
+  req.vaildBody = { secret_token };
   next();
 }
 
@@ -67,4 +78,4 @@ const validata_participant = (req, res, next) => {
     return true;
   }
 }
-module.exports = { validate_raffle, validate_id, validata_participant };
+module.exports = { validate_raffle, validate_id, validata_participant, validate_token };
