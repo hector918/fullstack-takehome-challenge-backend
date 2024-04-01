@@ -43,16 +43,7 @@ raffle.post('/', validate_raffle, async (req, res) => {
     if (!raffle) throw new Error("create raffle error.");
     res.json({ data: raffle });
   })
-  ////////////////////////////////////////////////
-  function create_secret_token(length = 6) {
-    var result = '';
-    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for (var i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  }
+
 })
 
 raffle.post('/:id/participants', validate_id, validata_participant, async (req, res) => {
