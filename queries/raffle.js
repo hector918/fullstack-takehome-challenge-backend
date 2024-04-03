@@ -6,7 +6,9 @@ const raffle_field_for_showing = ["id", "name", "create_at", "update_at", "statu
 const participant_for_showing = ['firstname', 'lastname', 'email', 'phone'];
 //////////////////////////////////////////
 const all_raffles = async () => {
-  const raffles = await db.many(`SELECT ${raffle_field_for_showing.join(",")} FROM raffles;`);
+  const raffles = await db.many(`SELECT ${"raffles." + raffle_field_for_showing.join(",raffles.")}, link.participant_id as winner_id FROM raffles
+  LEFT JOIN participants_link_raffes as link ON link.raffle_id = raffles.id AND link.status = 1
+  ORDER BY create_at DESC;`);
   return raffles;
 }
 
@@ -99,7 +101,7 @@ const pick_a_winner = async (raffle_id, secret_token, random_number = Math.rando
 }
 
 const get_raffle_winner_info = async (raffle_id) => {
-  const winner = db.oneOrNone(`SELECT ${participant_for_showing.join(",")} FROM participants_link_raffes 
+  const winner = db.manyOrNone(`SELECT ${participant_for_showing.join(",")} FROM participants_link_raffes 
   JOIN participants ON participants.id = participants_link_raffes.participant_id
   WHERE raffle_id = $[raffle_id] AND status = 1;`, { raffle_id });
   return winner;

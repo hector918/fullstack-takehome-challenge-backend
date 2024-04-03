@@ -79,7 +79,7 @@ raffle.get('/:id/winner', validate_id, async (req, res) => {
 
   await req.general_procedure(req, res, async () => {
     const winner = await get_raffle_winner_info(id);
-    if (!winner) throw new Error(`Can find winnder for raffle ${id}.`);
+    if (!winner || winner.length === 0) throw new Error(`Can find winnder for raffle ${id}.`);
     res.json({ data: winner });
   })
 })
