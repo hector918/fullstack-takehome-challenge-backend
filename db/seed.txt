@@ -1,0 +1,24 @@
+INSERT INTO "public"."raffles" ( "create_at", "update_at", "status", "name", "secret_token") VALUES
+( '2024-03-29 13:09:25.347427+00', NULL, 0, 'Javascript fundamental', '$2b$09$rJDS6/ihZOx7sCCRxjxKf.kc5eODfnNK4P7SX/FXgvsm9Uhw.C.GK'),
+( '2024-03-29 13:09:46.231273+00', NULL, 0, 'Javascript fundamental''', '4Puves'),
+( '2024-03-29 13:19:17.977597+00', '2024-04-01 14:47:10+00', 1, 'Javastda 1我左a', '$2b$09$rJDS6/ihZOx7sCCRxjxKf.kc5eODfnNK4P7SX/FXgvsm9Uhw.C.GK'),
+( '2024-04-02 10:36:06.432658+00', NULL, 0, 'das', '$2b$09$rJDS6/ihZOx7sCCRxjxKf.grkwMZ/X7qeUZ9wNCSyLUOywdrXrBbW');
+
+
+INSERT INTO "public"."participants" ( "firstname", "lastname", "email", "phone") VALUES
+( 'john', 'doe', 'abc@cde.com', ''),
+( 'john', 'doe', 'abc@c1de.com', ''),
+( 'john', 'doe', 'abc@cde1.com', '218-123-87637'),
+( 'john', 'doe', 'abc@cde2.com', '218-123-87637'),
+( 'john', 'doe', 'abc@cde4.com', '218-123-87637');
+
+
+
+INSERT INTO "public"."participants_link_raffes" ( "participant_id", "raffle_id", "joined_at", "status") VALUES
+( 1, 2, '2024-03-30 11:13:36.751214+00', 0),
+( 2, 2, '2024-04-01 13:24:26.553773+00', 0),
+( 3, 2, '2024-04-01 13:24:31.220918+00', 1),
+( 4, 2, '2024-04-01 13:24:35.307083+00', 0);
+
+
+
