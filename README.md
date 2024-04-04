@@ -1,6 +1,6 @@
 ## Setting up Local Environment for Repository
 
-1. **Clone the Repository**: Begin by cloning this repository using the command:
+1. **Clone the Repository**: Start by cloning this repository using the command:
    ```
    git clone <repository_url>
    ```
@@ -8,14 +8,20 @@
    ```
    cd <local_repository_folder>
    ```
-3. **Install Dependencies**: Execute the following command to install the necessary dependencies using npm:
+3. **Install Dependencies**: Proceed to install the necessary dependencies by running:
    ```
    npm install
    ```
 
+## Database Setup
+
+1. **Import PostgreSQL Schema**: Utilize the PostgreSQL schema file located at `./db/schema.txt` to import the schema into your database.
+
+2. **Optional: Seed Data Import**: If needed, import seed data from the `seed.txt` file.
+
 ## Configuration Setup
 
-1. **Create Environment Variables File**: Generate a `.env` file in the local repository folder and populate it with the following variables:
+1. **Create Environment Variables File**: Generate a `.env` file in the local repository folder and set the following variables:
 
    ```plaintext
    DB_URL=postgres://**\*\***
@@ -28,6 +34,6 @@
 
 ## Running the Server
 
-After configuring the environment variables, execute the following command to run the server:
+Once the environment is configured, execute the following command to run the server:
 `    node server.js
    `
