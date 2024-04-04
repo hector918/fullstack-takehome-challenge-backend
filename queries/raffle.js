@@ -94,7 +94,6 @@ const pick_a_winner = async (raffle_id, secret_token, random_number = Math.rando
     const updated_raffle = await t.oneOrNone(`UPDATE raffles
     SET update_at = $[update_at], status = 1
     WHERE id = $[raffle_id] RETURNING *;`, { update_at: (new Date).toUTCString(), raffle_id });
-    console.log(updated_raffle)
 
     if (!updated_raffle) throw new Error(`Can not update raffle ${raffle_id} for winner.`);
 
