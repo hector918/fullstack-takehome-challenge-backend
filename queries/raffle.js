@@ -29,6 +29,11 @@ const raffle_by_id = async (id) => {
 
 const add_participant_to_raffle = async ({ raffle_id, firstname, lastname, email, phone }) => {
   const signed_participant = await db.tx(async t => {
+
+    const raffle = await db.oneOrNone(`SELECT id FROM raffles WHERE id = $[raffle_id] AND status = 0;`, { raffle_id });
+
+    if (!raffle) throw new Error(`raffle are finished or invalid.`)
+
     const participant = await t.oneOrNone(`INSERT INTO participants 
     (firstname, lastname, email, phone)
     VALUES ($[firstname], $[lastname], $[email], $[phone])
@@ -59,7 +64,7 @@ const add_participant_to_raffle = async ({ raffle_id, firstname, lastname, email
 }
 
 const get_participants_by_raffle_id = async (raffle_id) => {
-  const participants = await db.many(`SELECT ${participant_for_showing.join(",")} FROM participants_link_raffes 
+  const participants = await db.manyOrNone(`SELECT ${participant_for_showing.join(",")} FROM participants_link_raffes 
   JOIN participants ON participants.id = participants_link_raffes.participant_id
   WHERE raffle_id = $[raffle_id];`, { raffle_id });
   return participants;
@@ -71,7 +76,7 @@ const pick_a_winner = async (raffle_id, secret_token, random_number = Math.rando
     const hash = bcrypt.hashSync(secret_token, salt);
     const raffle = await t.oneOrNone(`SELECT * FROM raffles WHERE id = $[raffle_id] AND secret_token = $[secret_token] AND status = 0;`, { raffle_id, secret_token: hash });
 
-    if (!raffle) throw new Error(`Ivaild raffle or invaild token.`);
+    if (!raffle) throw new Error(`Invaild raffle or invaild token.`);
 
     const participants = await t.manyOrNone(`SELECT participants_link_raffes.id, ${participant_for_showing.join(",")} FROM participants_link_raffes 
     JOIN participants ON participants.id = participants_link_raffes.participant_id
@@ -84,12 +89,12 @@ const pick_a_winner = async (raffle_id, secret_token, random_number = Math.rando
     SET status = 1
     WHERE id = $[winner_link_id]
     RETURNING *;`, { winner_link_id: winner_link.id });
-
     if (!updated_winner) throw new Error(`Can not update winner.`);
 
     const updated_raffle = await t.oneOrNone(`UPDATE raffles
     SET update_at = $[update_at], status = 1
-    WHERE id = $[raffle_id];`, { update_at: (new Date).toUTCString(), raffle_id });
+    WHERE id = $[raffle_id] RETURNING *;`, { update_at: (new Date).toUTCString(), raffle_id });
+    console.log(updated_raffle)
 
     if (!updated_raffle) throw new Error(`Can not update raffle ${raffle_id} for winner.`);
 

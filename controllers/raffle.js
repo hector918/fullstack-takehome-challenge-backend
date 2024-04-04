@@ -76,7 +76,6 @@ raffle.put('/:id/winner', validate_id, validate_token, async (req, res) => {
 
 raffle.get('/:id/winner', validate_id, async (req, res) => {
   const { id } = req.vaildParams;
-
   await req.general_procedure(req, res, async () => {
     const winner = await get_raffle_winner_info(id);
     if (!winner || winner.length === 0) throw new Error(`Can find winnder for raffle ${id}.`);
